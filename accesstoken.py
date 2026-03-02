@@ -6,10 +6,10 @@ from dotenv import load_dotenv
 load_dotenv()
 
 url = 'https://accounts.spotify.com/api/token'
-ACCESS_FILE = '.spotify_access'
+CREDS = 'creds.json'
 
 def fetch():
-    with open('.spotify_code','r') as f:
+    with open(CREDS,'r') as f:
         AUTHCODE = f.read().strip()
 
     params = {

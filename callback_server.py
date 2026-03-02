@@ -3,14 +3,14 @@
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.responses import HTMLResponse
 import os
-from datetime import time, timedelta
-
+from datetime import datetime, timedelta, timezone
+import json
+import uvicorn
 
 app = FastAPI()
 
 STATE_FILE = ".spotify_state"
-CODE_FILE = ".spotify_code"
-
+TOKEN_FILE = 'creds.json'
 
 @app.get("/")
 def health():
@@ -49,10 +49,13 @@ def callback(request: Request):
         raise HTTPException(status_code=400, detail="Missing code in callback.")
 
     # 6) Persist code for the separate auth process
-    with open(CODE_FILE, "w") as f:
-        now_time = time.now()
-        dic = {code:now_time}
-        f.write(dic)
+    with open(TOKEN_FILE, "w") as json_file:
+        now_time = datetime.now(timezone.utc) + timedelta(seconds=3600)
+
+        dic= {'code': code, 'expire': now_time.isoformat()}
+
+        json.dump(dic, json_file, indent=4)
+
 
     # 7) Cleanup to avoid stale state causing future confusion
     try:
@@ -62,3 +65,6 @@ def callback(request: Request):
 
     # 8) Friendly browser response
     return "<h3>Approved ✅</h3><p>You can close this tab now.</p>"
+
+if '__name__' == '__main__':
+    uvicorn.run('callback_server',host="127.0.0.1", port='8888', reload=False)
