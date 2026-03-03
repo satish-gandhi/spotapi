@@ -10,7 +10,7 @@ import uvicorn
 app = FastAPI()
 
 STATE_FILE = ".spotify_state"
-TOKEN_FILE = 'creds.json'
+CREDS = 'creds.json'
 
 @app.get("/")
 def health():
@@ -49,10 +49,10 @@ def callback(request: Request):
         raise HTTPException(status_code=400, detail="Missing code in callback.")
 
     # 6) Persist code for the separate auth process
-    with open(TOKEN_FILE, "w") as json_file:
+    with open(CREDS, "w") as json_file:
         now_time = datetime.now(timezone.utc) + timedelta(seconds=3600)
 
-        dic= {'code': code, 'expire': now_time.isoformat()}
+        dic= {'code': code, 'code_expire': now_time.isoformat()}
 
         json.dump(dic, json_file, indent=4)
 

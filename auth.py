@@ -14,22 +14,17 @@ CREDS = 'creds.json'
 
 def authorize():
     try:
-        print('Try')
         with open(CREDS,'r') as json_file:
             json_data = json.load(json_file)
-            print(json_data)
-            if 'expire' in json_data:
-                expires_at = datetime.fromisoformat(json_data['expire'])
+            if 'code_expire' in json_data:
+                code_expires_at = datetime.fromisoformat(json_data['code_expire'])
                 now = datetime.now(timezone.utc)
-                if expires_at.tzinfo is None:
-                    expires_at = expires_at.replace(tzinfo=timezone.utc)
-                print(expires_at)
-                print(now)
-                if now>=expires_at:
-                    print("EXPIRED")
-                    raise(FileNotFoundError)
-    except FileNotFoundError:
-        print('File Not Found')
+                if code_expires_at.tzinfo is None:
+                    code_expires_at = code_expires_at.replace(tzinfo=timezone.utc)
+                if now>=code_expires_at:
+                    raise FileNotFoundError
+    # except FileNotFoundError:
+    except:
         load_dotenv()
         
         authurl = 'https://accounts.spotify.com/authorize?'
